@@ -88,7 +88,7 @@ class RtcClient{
 
              override fun onCreateFailure(pc: String?) {
                  super.onCreateFailure(pc)
-                 println("answer fail"+ pc)
+                 println("answer fail" + pc)
              }
 
              override fun onSetSuccess() {
@@ -98,7 +98,7 @@ class RtcClient{
 
              override fun onSetFailure(pc: String?) {
                  super.onSetFailure(pc)
-                 println("answer set success"+pc)
+                 println("answer set success" + pc)
              }
          }, MediaConstraints())
      }
@@ -120,7 +120,6 @@ class RtcClient{
             override fun onIceCandidate(pc: IceCandidate?) {
                 super.onIceCandidate(pc)
                 call?.iceData(pc, socketId)
-                println("1")
             }
 
             override fun onAddStream(pc: MediaStream?) {
