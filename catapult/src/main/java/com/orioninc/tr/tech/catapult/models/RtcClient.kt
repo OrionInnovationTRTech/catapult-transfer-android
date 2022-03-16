@@ -4,10 +4,13 @@ import android.util.Log
 import org.webrtc.*
 import org.webrtc.MediaConstraints
 
- class RtcClient {
+class RtcClient{
     private var peerConnectionFactory: PeerConnectionFactory? = null
     var mediaStream: MediaStream? = null
-    private val TAG = this.javaClass.name
+     private var peerConnection : PeerConnection? = null
+    private var mDataChannel : DataChannel?=null
+    private var mDataChannelObserver : RtcDataChannel?=null
+     private val TAG = this.javaClass.name
     private var iceServers = ArrayList<PeerConnection.IceServer>()
     private var call: RtcCallBack? = null
     private var context: Context? = null
@@ -20,8 +23,12 @@ import org.webrtc.MediaConstraints
     private var pcConstraints = MediaConstraints()
 
     constructor(context: Context) {
+
         this.context = context
         init(context)
+        createOffer("test")
+        createAnswer("test")
+
     }
     // Initialization
     private fun init(app: Context) {
@@ -39,6 +46,7 @@ import org.webrtc.MediaConstraints
         peerConnectionFactory = PeerConnectionFactory.builder()
             .setOptions(options)
             .createPeerConnectionFactory()
+
     }
     fun setCallBack(call: RtcCallBack) {
         this.call = call
@@ -46,6 +54,7 @@ import org.webrtc.MediaConstraints
 
     fun call() {
         iceServers.add(PeerConnection.IceServer.builder("stun:stun4.l.google.com:19302").createIceServer())
+        println("RtcClient.call")
     }
 
     fun createOffer(id: String) {
@@ -53,8 +62,15 @@ import org.webrtc.MediaConstraints
         peerConnection?.createOffer(object : SdpAdapter() {
             override fun onCreateSuccess(sessionDescription: SessionDescription?) {
                 super.onCreateSuccess(sessionDescription)
-                peerConnection?.setLocalDescription(SdpAdapter(), sessionDescription)
+                peerConnection?.setRemoteDescription(SdpAdapter(), sessionDescription)
+
                 call?.offer(sessionDescription, id)
+                println("offer create")
+            }
+
+            override fun onCreateFailure(pc: String?) {
+                super.onCreateFailure(pc)
+                print("offer fail")
             }
         }, MediaConstraints())
     }
@@ -67,11 +83,22 @@ import org.webrtc.MediaConstraints
                  super.onCreateSuccess(sdp)
                  peerConnection?.setLocalDescription(SdpAdapter(), sdp)
                  call?.answer(sdp, id)
+                 println("answer create")
              }
 
              override fun onCreateFailure(pc: String?) {
                  super.onCreateFailure(pc)
-                 Log.e("Create failed", pc!!)
+                 println("answer fail"+ pc)
+             }
+
+             override fun onSetSuccess() {
+                 super.onSetSuccess()
+                 println("answer set success")
+             }
+
+             override fun onSetFailure(pc: String?) {
+                 super.onSetFailure(pc)
+                 println("answer set success"+pc)
              }
          }, MediaConstraints())
      }
@@ -81,7 +108,7 @@ import org.webrtc.MediaConstraints
         if (peerConnectionMap == null) {
             peerConnectionMap = HashMap()
         }
-        var peerConnection = peerConnectionMap?.get(socketId)
+        peerConnection = peerConnectionMap?.get(socketId)
         if (peerConnection != null) {
             return peerConnection
         }
@@ -93,6 +120,7 @@ import org.webrtc.MediaConstraints
             override fun onIceCandidate(pc: IceCandidate?) {
                 super.onIceCandidate(pc)
                 call?.iceData(pc, socketId)
+                println("1")
             }
 
             override fun onAddStream(pc: MediaStream?) {
@@ -110,10 +138,15 @@ import org.webrtc.MediaConstraints
 
             override fun onDataChannel(pc: DataChannel?) {
                 super.onDataChannel(pc)
+                mDataChannel = pc
+                mDataChannel = peerConnection?.createDataChannel(TAG,DataChannel.Init())
+
+                mDataChannel?.registerObserver(mDataChannelObserver)
             }
         })
 
         peerConnectionMap!![socketId] = peerConnection
         return peerConnection
+
     }
 }
