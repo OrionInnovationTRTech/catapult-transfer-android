@@ -8,13 +8,10 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.initialize
 import com.orioninc.tr.tech.catapult.models.RtcClient
 import com.orioninc.tr.tech.catapult.ui.theme.CatapultTheme
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -26,8 +23,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
             RtcClient(this)
-            Firebase.initialize(this)
-
         }
     }
 }
