@@ -8,11 +8,13 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.orioninc.tr.tech.catapult.models.RtcClient
 import com.orioninc.tr.tech.catapult.ui.theme.CatapultTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             CatapultTheme {
                 // A surface container using the 'background' color from the theme
@@ -20,6 +22,7 @@ class MainActivity : ComponentActivity() {
                     Greeting("Android")
                 }
             }
+            RtcClient(this)
         }
     }
 }
